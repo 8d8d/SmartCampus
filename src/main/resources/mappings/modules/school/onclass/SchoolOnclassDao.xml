@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.school.dao.onclass.SchoolOnclassDao">
+    
+	<sql id="schoolOnclassColumns">
+		a.id AS "id",
+		a.student_id AS "studentId",
+		a.result AS "result",
+		a.week AS "week",
+		a.lesson_id AS "lessonId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="schoolOnclassJoins">
+		LEFT JOIN sys_user u2 ON u2.id = a.student_id
+		JOIN sys_user u ON u.id = a.create_by
+		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+	<select id="get" resultType="SchoolOnclass">
+		SELECT 
+			<include refid="schoolOnclassColumns"/>
+		FROM school_onclass a
+		<include refid="schoolOnclassJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SchoolOnclass">
+		SELECT 
+			<include refid="schoolOnclassColumns"/>
+		FROM school_onclass a
+		<include refid="schoolOnclassJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="studentId != null and studentId != ''">
+				AND a.student_id = #{studentId}
+			</if>
+			<if test="week != null and week != ''">
+				AND a.week = #{week}
+			</if>
+			<if test="lessonId != null and lessonId != ''">
+				AND a.lesson_id = #{lessonId}
+			</if>
+		</where>
+				${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SchoolOnclass">
+		SELECT 
+			<include refid="schoolOnclassColumns"/>
+		FROM school_onclass a
+		<include refid="schoolOnclassJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO school_onclass(
+			id,
+			student_id,
+			result,
+			week,
+			lesson_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{studentId},
+			#{result},
+			#{week},
+			#{lessonId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE school_onclass SET 	
+			student_id = #{studentId},
+			result = #{result},
+			week = #{week},
+			lesson_id = #{lessonId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE school_onclass SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

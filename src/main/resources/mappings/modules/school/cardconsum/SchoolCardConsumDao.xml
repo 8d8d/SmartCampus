@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.school.dao.cardconsum.SchoolCardConsumDao">
+    
+	<sql id="schoolCardConsumColumns">
+		a.id AS "id",
+		a.consum_money AS "consumMoney",
+		a.consum_name AS "consumName",
+		a.consum_type AS "consumType",
+		a.balance AS "balance",
+		a.card_id AS "cardId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="schoolCardConsumJoins">
+	    JOIN sys_user u ON u.id = a.create_by
+		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+	<select id="get" resultType="SchoolCardConsum">
+		SELECT 
+			<include refid="schoolCardConsumColumns"/>
+		FROM school_card_consum a
+		<include refid="schoolCardConsumJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SchoolCardConsum">
+		SELECT 
+			<include refid="schoolCardConsumColumns"/>
+		FROM school_card_consum a
+		<include refid="schoolCardConsumJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="cardId != null and cardId != ''">
+				AND a.card_id = #{cardId}
+			</if>
+		</where>
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SchoolCardConsum">
+		SELECT 
+			<include refid="schoolCardConsumColumns"/>
+		FROM school_card_consum a
+		<include refid="schoolCardConsumJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO school_card_consum(
+			id,
+			consum_money,
+			consum_name,
+			balance,
+			consum_type,
+			card_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{consumMoney},
+			#{consumName},
+			#{balance},
+			#{consumType},
+			#{cardId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE school_card_consum SET 	
+			consum_money = #{consumMoney},
+			consum_name = #{consumName},
+			balance = #{balance},
+			consum_type = #{consumType},
+			card_id = #{cardId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE school_card_consum SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

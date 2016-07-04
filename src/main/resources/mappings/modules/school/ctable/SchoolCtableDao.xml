@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.school.dao.ctable.SchoolCtableDao">
+    
+	<sql id="schoolCtableColumns">
+		a.id AS "id",
+		a.course_id AS "courseId",
+		a.weekday AS "weekday",
+		a.week_num AS "weekNum",
+		a.course_order AS "courseOrder",
+		a.start AS "start",
+		a.classroom_id AS "classroomId",
+		a.office_id AS "office.id",
+		a.course_date AS "courseDate",
+		a.teacher_id AS "teacherId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		o8.name AS "office.name"
+	</sql>
+	
+	<sql id="schoolCtableJoins">
+		LEFT JOIN sys_office o8 ON o8.id = a.office_id
+		LEFT JOIN sys_user u10 ON u10.id = a.teacher_id
+		JOIN sys_user u ON u.id = a.create_by
+		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+	<select id="get" resultType="SchoolCtable">
+		SELECT 
+			<include refid="schoolCtableColumns"/>
+		FROM school_ctable a
+		<include refid="schoolCtableJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<!-- yuanshifangfa  -->
+	<select id="findaList" resultType="SchoolCtable">
+		SELECT 
+			<include refid="schoolCtableColumns"/>
+		FROM school_ctable a
+		<include refid="schoolCtableJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="courseId != null and courseId != ''">
+				AND a.course_id = #{courseId}
+			</if>
+			<if test="weekNum != null and weekNum != ''">
+				AND a.week_num = #{weekNum}
+			</if>
+			<if test="teacherId != null and teacherId != ''">
+				AND a.teacher_id = #{teacherId}
+			</if>
+		</where>
+				${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- chongxiefangfa -->
+	<select id="findList" resultType="SchoolCtable">
+		SELECT 
+			<include refid="schoolCtableColumns"/>
+		FROM school_ctable a
+		<include refid="schoolCtableJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="courseId != null and courseId != ''">
+				AND a.course_id = #{courseId}
+			</if>
+			<if test="weekNum != null and weekNum != ''">
+				AND a.week_num = #{weekNum}
+			</if>
+			<if test="teacherId != null and teacherId != ''">
+				AND a.teacher_id = #{teacherId}
+			</if>
+		</where>
+		
+		ORDER BY a.weekday,a.course_order
+	</select>
+	
+	<select id="findAllList" resultType="SchoolCtable">
+		SELECT 
+			<include refid="schoolCtableColumns"/>
+		FROM school_ctable a
+		<include refid="schoolCtableJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO school_ctable(
+			id,
+			course_id,
+			weekday,
+			week_num,
+			course_order,
+			start,
+			classroom_id,
+			office_id,
+			course_date,
+			teacher_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{courseId},
+			#{weekday},
+			#{weekNum},
+			#{courseOrder},
+			#{start},
+			#{classroomId},
+			#{office.id},
+			#{courseDate},
+			#{teacherId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE school_ctable SET 	
+			course_id = #{courseId},
+			weekday = #{weekday},
+			week_num = #{weekNum},
+			course_order = #{courseOrder},
+			start = #{start},
+			classroom_id = #{classroomId},
+			office_id = #{office.id},
+			course_date = #{courseDate},
+			teacher_id = #{teacherId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE school_ctable SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.school.dao.lessonteacher.SchoolLessonTeacherDao">
+    
+	<sql id="schoolLessonTeacherColumns">
+		a.id AS "id",
+		a.teacher_id AS "teacherId",
+		a.class_id AS "classId",
+		a.lesson_id AS "lessonId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="schoolLessonTeacherJoins">
+		LEFT JOIN sys_user u2 ON u2.id = a.teacher_id
+		LEFT JOIN sys_office o3 ON o3.id = a.class_id
+		JOIN sys_user u ON u.id = a.create_by
+		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+	<select id="get" resultType="SchoolLessonTeacher">
+		SELECT 
+			<include refid="schoolLessonTeacherColumns"/>
+		FROM school_lesson_teacher a
+		<include refid="schoolLessonTeacherJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SchoolLessonTeacher">
+		SELECT 
+			<include refid="schoolLessonTeacherColumns"/>
+		FROM school_lesson_teacher a
+		<include refid="schoolLessonTeacherJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="teacherId != null and teacherId != ''">
+				AND a.teacher_id = #{teacherId}
+			</if>
+			<if test="classId != null and classId != ''">
+				AND a.class_id = #{classId}
+			</if>
+			<if test="lessonId != null and lessonId != ''">
+				AND a.lesson_id = #{lessonId}
+			</if>
+		</where>
+				${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SchoolLessonTeacher">
+		SELECT 
+			<include refid="schoolLessonTeacherColumns"/>
+		FROM school_lesson_teacher a
+		<include refid="schoolLessonTeacherJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO school_lesson_teacher(
+			id,
+			teacher_id,
+			class_id,
+			lesson_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{teacherId},
+			#{classId},
+			#{lessonId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE school_lesson_teacher SET 	
+			teacher_id = #{teacherId},
+			class_id = #{classId},
+			lesson_id = #{lessonId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE school_lesson_teacher SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

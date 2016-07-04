@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.school.dao.agenda.SchoolAgendaDao">
+    
+	<sql id="schoolAgendaColumns">
+		a.id AS "id",
+		a.repeats AS "repeats",
+		a.start AS "start",
+		a.end AS "end",
+		a.remind AS "remind",
+		a.content AS "content",
+		a.user_id AS "user.id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		u7.name AS "user.name"
+	</sql>
+	
+	<sql id="schoolAgendaJoins">
+		LEFT JOIN sys_user u7 ON u7.id = a.user_id
+				JOIN sys_user u ON u.id = a.create_by
+		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+	<select id="get" resultType="SchoolAgenda">
+		SELECT 
+			<include refid="schoolAgendaColumns"/>
+		FROM school_agenda a
+		<include refid="schoolAgendaJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SchoolAgenda">
+		SELECT 
+			<include refid="schoolAgendaColumns"/>
+		FROM school_agenda a
+		<include refid="schoolAgendaJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="repeats != null and repeats != ''">
+				AND a.repeats = #{repeats}
+			</if>
+			<if test="start != null and start != ''">
+				AND a.start = #{start}
+			</if>
+			<if test="end != null and end != ''">
+				AND a.end = #{end}
+			</if>
+			<if test="remind != null and remind != ''">
+				AND a.remind = #{remind}
+			</if>
+			<if test="content != null and content != ''">
+				AND a.content = #{content}
+			</if>
+			<if test="user != null and user.id != null and user.id != ''">
+				AND a.user_id = #{user.id}
+			</if>
+		</where>
+				${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SchoolAgenda">
+		SELECT 
+			<include refid="schoolAgendaColumns"/>
+		FROM school_agenda a
+		<include refid="schoolAgendaJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO school_agenda(
+			id,
+			repeats,
+			start,
+			end,
+			remind,
+			content,
+			user_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{repeats},
+			#{start},
+			#{end},
+			#{remind},
+			#{content},
+			#{user.id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE school_agenda SET 	
+			repeats = #{repeats},
+			start = #{start},
+			end = #{end},
+			remind = #{remind},
+			content = #{content},
+			user_id = #{user.id},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE school_agenda SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

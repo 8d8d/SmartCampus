@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.school.dao.leave.SchoolLeaveDao">
+    
+	<sql id="schoolLeaveColumns">
+		a.id AS "id",
+		a.apply_id AS "applyId",
+		a.accept_id AS "acceptId",
+		a.reason AS "reason",
+		a.start AS "start",
+		a.end AS "end",
+		a.deal_id AS "dealId",
+		a.deal_name AS "dealName",
+		a.deal_reason AS "dealReason",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="schoolLeaveJoins">
+		JOIN sys_user u ON u.id = a.create_by
+		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+	<select id="get" resultType="SchoolLeave">
+		SELECT 
+			<include refid="schoolLeaveColumns"/>
+		FROM school_leave a
+		<include refid="schoolLeaveJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SchoolLeave">
+		SELECT 
+			<include refid="schoolLeaveColumns"/>
+		FROM school_leave a
+		<include refid="schoolLeaveJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="applyId != null and applyId != ''">
+				AND a.apply_id = #{applyId}
+			</if>
+			<if test="acceptId != null and acceptId != ''">
+				AND a.accept_id = #{acceptId}
+			</if>
+			<if test="reason != null and reason != ''">
+				AND a.reason = #{reason}
+			</if>
+			<if test="start != null and start != ''">
+				AND a.start = #{start}
+			</if>
+			<if test="end != null and end != ''">
+				AND a.end = #{end}
+			</if>
+			<if test="dealId != null and dealId != ''">
+				AND a.deal_id = #{dealId}
+			</if>
+			<if test="dealName != null and dealName != ''">
+				AND a.deal_name = #{dealName}
+			</if>
+			<if test="dealReason != null and dealReason != ''">
+				AND a.deal_reason = #{dealReason}
+			</if>
+		</where>
+				${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SchoolLeave">
+		SELECT 
+			<include refid="schoolLeaveColumns"/>
+		FROM school_leave a
+		<include refid="schoolLeaveJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO school_leave(
+			id,
+			apply_id,
+			accept_id,
+			reason,
+			start,
+			end,
+			deal_id,
+			deal_name,
+			deal_reason,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{applyId},
+			#{acceptId},
+			#{reason},
+			#{start},
+			#{end},
+			#{dealId},
+			#{dealName},
+			#{dealReason},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE school_leave SET 	
+			apply_id = #{applyId},
+			accept_id = #{acceptId},
+			reason = #{reason},
+			start = #{start},
+			end = #{end},
+			deal_id = #{dealId},
+			deal_name = #{dealName},
+			deal_reason = #{dealReason},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE school_leave SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

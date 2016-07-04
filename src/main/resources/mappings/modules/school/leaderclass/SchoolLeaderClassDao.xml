@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.school.dao.leaderclass.SchoolLeaderClassDao">
+    
+	<sql id="schoolLeaderClassColumns">
+		a.id AS "id",
+		a.leader_id AS "leaderId",
+		a.class_id AS "classId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_time AS "updateTime",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="schoolLeaderClassJoins">
+		LEFT JOIN sys_user u2 ON u2.id = a.leader_id
+		LEFT JOIN sys_office o3 ON o3.id = a.class_id
+		JOIN sys_user u ON u.id = a.create_by
+		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+	<select id="get" resultType="SchoolLeaderClass">
+		SELECT 
+			<include refid="schoolLeaderClassColumns"/>
+		FROM school_leader_class a
+		<include refid="schoolLeaderClassJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SchoolLeaderClass">
+		SELECT 
+			<include refid="schoolLeaderClassColumns"/>
+		FROM school_leader_class a
+		<include refid="schoolLeaderClassJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="leaderId != null and leaderId != ''">
+				AND a.leader_id = #{leaderId}
+			</if>
+			<if test="classId != null and classId != ''">
+				AND a.class_id = #{classId}
+			</if>
+		</where>
+				${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SchoolLeaderClass">
+		SELECT 
+			<include refid="schoolLeaderClassColumns"/>
+		FROM school_leader_class a
+		<include refid="schoolLeaderClassJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO school_leader_class(
+			id,
+			leader_id,
+			class_id,
+			create_by,
+			create_date,
+			update_by,
+			update_time,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{leaderId},
+			#{classId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateTime},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE school_leader_class SET 	
+			leader_id = #{leaderId},
+			class_id = #{classId},
+			update_by = #{updateBy.id},
+			update_time = #{updateTime},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE school_leader_class SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

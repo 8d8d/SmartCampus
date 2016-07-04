@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.school.dao.cardrecharge.SchoolCardRechargeDao">
+    
+	<sql id="schoolCardRechargeColumns">
+		a.id AS "id",
+		a.card_id AS "cardId",
+		a.recharge_money AS "rechargeMoney",
+		a.recharge_name AS "rechargeName",
+		a.balance AS "balance",
+		a.wallet AS "wallet",
+		a.recharge_type AS "rechargeType",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="schoolCardRechargeJoins">
+		JOIN sys_user u ON u.id = a.create_by
+		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+	<select id="get" resultType="SchoolCardRecharge">
+		SELECT 
+			<include refid="schoolCardRechargeColumns"/>
+		FROM school_card_recharge a
+		<include refid="schoolCardRechargeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SchoolCardRecharge">
+		SELECT 
+			<include refid="schoolCardRechargeColumns"/>
+		FROM school_card_recharge a
+		<include refid="schoolCardRechargeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SchoolCardRecharge">
+		SELECT 
+			<include refid="schoolCardRechargeColumns"/>
+		FROM school_card_recharge a
+		<include refid="schoolCardRechargeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="cardId != null and cardId != ''">
+				AND a.card_id = #{cardId}
+			</if>
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO school_card_recharge(
+			id,
+			card_id,
+			balance,
+			recharge_money,
+			recharge_name,
+			wallet,
+			recharge_type,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{cardId},
+			#{balance},
+			#{rechargeMoney},
+			#{rechargeName},
+			#{wallet},
+			#{rechargeType},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE school_card_recharge SET 	
+			card_id = #{cardId},
+			balance = #{balance},
+			recharge_money = #{rechargeMoney},
+			recharge_name = #{rechargeName},
+			wallet = #{wallet},
+			recharge_type = #{rechargeType},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE school_card_recharge SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

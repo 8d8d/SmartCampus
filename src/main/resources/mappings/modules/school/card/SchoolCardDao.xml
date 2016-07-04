@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.school.dao.card.SchoolCardDao">
+    
+	<sql id="schoolCardColumns">
+		a.id AS "id",
+		a.state AS "state",
+		a.balance AS "balance",
+		a.user_id AS "user.id",
+		a.card_id AS "cardId",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		u4.name AS "user.name"
+	</sql>
+	
+	<sql id="schoolCardJoins">
+		LEFT JOIN sys_user u4 ON u4.id = a.user_id
+		JOIN sys_user u ON u.id = a.create_by
+		JOIN sys_office o ON o.id = u.office_id
+	</sql>
+    
+	<select id="get" resultType="SchoolCard">
+		SELECT 
+			<include refid="schoolCardColumns"/>
+		FROM school_card a
+		<include refid="schoolCardJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SchoolCard">
+		SELECT 
+			<include refid="schoolCardColumns"/>
+		FROM school_card a
+		<include refid="schoolCardJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="cardId != null and cardId != ''">
+				AND a.card_id = #{cardId}
+			</if>
+			<if test="user!= null">
+				AND a.user_id = #{user.id}
+			</if>
+		</where>
+		${sqlMap.dsf}
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SchoolCard">
+		SELECT 
+			<include refid="schoolCardColumns"/>
+		FROM school_card a
+		<include refid="schoolCardJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO school_card(
+			id,
+			state,
+			balance,
+			user_id,
+			card_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{state},
+			#{balance},
+			#{user.id},
+			#{cardId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE school_card SET 	
+			state = #{state},
+			balance = #{balance},
+			user_id = #{user.id},
+			card_id = #{cardId},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE school_card SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

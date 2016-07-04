@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.common.dao.CommonDao">
+	<select id="findListBySQL" parameterType="string" resultType="hashmap" >
+		<![CDATA[${value}]]>
+	</select>
+	
+	<update id="updateBySQL" parameterType="string">
+    	<![CDATA[${value}]]>
+	</update>
+	
+	<insert id="insertBySQL" parameterType="string">
+    	<![CDATA[${value}]]>
+	</insert>
+	
+	<delete id="deleteBySQL" parameterType="string">
+    	<![CDATA[${value}]]>
+	</delete>
+
+	
+	<!-- oracle分页 tlda "更多" 专用 
+	<sql id="paging_left">select * from(select t.*,rownum rn from(</sql>
+    <sql id="paging_right">  
+          <![CDATA[  
+          ) t where rownum<=$pageSize$*$currentPage$ ) where rn>($currentPage$-1)*$pageSize$ 
+          ]]>
+        </sql>
+	-->
+	
+      <!-- DB2  tlda "更多" 专用     -->
+    
+    <sql id="paging_left">SELECT * FROM (SELECT ROWNUMBER() OVER() as rn, originTable.*  from(</sql>
+    
+    <sql id="paging_right">) originTable ) temp_  where rn between ($currentPage$-1)*$pageSize$+1 and $pageSize$*$currentPage$</sql>
+ 
+ 
+    
+	
+	
+    <!-- oracle
+   
+    <sql id="paging_left">SELECT * FROM (SELECT originTable.*, ROWNUM AS rn FROM (</sql>
+    <sql id="paging_right">) originTable ) where rn between #start#+1 and #start#+#limit#</sql>
+     -->
+    <!-- DB2
+    
+    <sql id="paging_left">SELECT * FROM (SELECT ROWNUMBER() OVER() as rn, originTable.*  from(</sql>
+    <sql id="paging_right">) originTable ) temp_  where rn between $start$+1 and $start$+$limit$</sql>
+   -->
+
+    <!-- mysql -->
+    <!--
+    <sql id="paging_left"></sql>
+    <sql id="paging_right">LIMIT $start$,$limit$</sql>
+    -->
+
+    <!-- MSSQL 2005+-->
+    <!--
+    <sql id="paging_left">SELECT * FROM (SELECT ORIGINTABLE.*,RN=ROW_NUMBER() OVER(ORDER BY #_column#) FROM(</sql>
+    <sql id="paging_right">)ORIGINTABLE)A WHERE RN BETWEEN #start#+1 AND #start#+#limit#</sql>
+    -->
+
+    <!-- MSSQL 2000 -->
+    <!--
+    <sql id="paging_left">select * from(select top $limit$ * From (select Top $start$ * From (</sql>
+    <sql id="paging_right">)ORIGINTABLE order by $column$ asc)p order by $column$ desc)o </sql>
+    -->
+</mapper>
